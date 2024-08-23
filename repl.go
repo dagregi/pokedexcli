@@ -5,15 +5,23 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/dagregi/pokedexcli/internal/pokeapi"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*config) error
 }
 
-func replStart(in io.Reader, out io.Writer) {
+type config struct {
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+}
+
+func replStart(in io.Reader, out io.Writer, cfg *config) {
 	scanner := bufio.NewScanner(in)
 	for {
 		fmt.Fprint(out, "Pokedex > ")
@@ -27,13 +35,13 @@ func replStart(in io.Reader, out io.Writer) {
 
 		command, ok := getCommands()[commandName]
 		if ok {
-			err := command.callback()
+			err := command.callback(cfg)
 			if err != nil {
 				fmt.Println(err)
 			}
 			continue
 		} else {
-			fmt.Printf("No such command: %s\n", commandName)
+			fmt.Printf("Error: no such command: %s\n", commandName)
 			continue
 		}
 	}
@@ -43,8 +51,18 @@ func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"help": {
 			name:        "help",
-			description: "Print this help text and exit",
+			description: "Print this help text",
 			callback:    helpCommand,
+		},
+		"map": {
+			name:        "map",
+			description: "Print the next page of locations",
+			callback:    mapfCommand,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Print the previous page of locations",
+			callback:    mapbCommand,
 		},
 		"exit": {
 			name:        "exit",
