@@ -30,7 +30,7 @@ func replStart(in io.Reader, out io.Writer, cfg *config) {
 			return
 		}
 
-		fields := strings.Fields(scanner.Text())
+		fields := strings.Fields(strings.ToLower(scanner.Text()))
 		commandName := fields[0]
 
 		command, ok := getCommands()[commandName]
