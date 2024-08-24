@@ -24,7 +24,7 @@ type config struct {
 func replStart(in io.Reader, out io.Writer, cfg *config) {
 	scanner := bufio.NewScanner(in)
 	for {
-		fmt.Fprint(out, "Pokedex > ")
+		fmt.Fprint(out, "\x1B[1;2mPokedex >\x1B[0m ")
 		scanned := scanner.Scan()
 		if !scanned {
 			return
@@ -41,7 +41,7 @@ func replStart(in io.Reader, out io.Writer, cfg *config) {
 			}
 			continue
 		} else {
-			fmt.Printf("Error: no such command: %s\n", commandName)
+			fmt.Printf("\x1B[1;31mError:\x1B[0m no such command: %s\n", commandName)
 			continue
 		}
 	}
