@@ -12,7 +12,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, ...string) error
 }
 
 type config struct {
@@ -32,10 +32,11 @@ func replStart(in io.Reader, out io.Writer, cfg *config) {
 
 		fields := strings.Fields(strings.ToLower(scanner.Text()))
 		commandName := fields[0]
+		parameters := fields[1:]
 
 		command, ok := getCommands()[commandName]
 		if ok {
-			err := command.callback(cfg)
+			err := command.callback(cfg, parameters...)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -53,6 +54,11 @@ func getCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Print this help text",
 			callback:    helpCommand,
+		},
+		"explore": {
+			name:        "explore <area>",
+			description: "Get the list of Pokemon in an area",
+			callback:    exploreCommand,
 		},
 		"map": {
 			name:        "map",
